@@ -22,7 +22,7 @@ xdg_DATA=user-dirs.conf user-dirs.defaults
 xdgautostartdir=$(xdgdir)/autostart
 xdgautostart_DATA = xdg-user-dirs.desktop
 
-libraries = $(LIBINTL)
+libraries = $(LIBINTL) $(LIBICONV)
 
 bin_PROGRAMS =					\
 	xdg-user-dirs-update			\
