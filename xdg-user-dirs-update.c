@@ -52,14 +52,14 @@ concat_strings (const char *first, ...)
 
   res = strdup (first);
   len = strlen (res) + 1;
-  
+
   va_start (va, first);
   while ( (next = va_arg(va, const char *)) != NULL)
     {
       res = realloc (res, len + strlen (next) + 1);
       strcat (res, next);
     }
-  
+
   va_end(va);
 
   return res;
@@ -96,7 +96,7 @@ ascii_str_toupper (char *c)
   while (*c)
     {
       *c = ascii_toupper (*c);
-      c++;  
+      c++;
     }
 }
 
@@ -125,7 +125,7 @@ is_regular_file (char *path)
   struct stat statbuf;
   if (stat (path, &statbuf) == -1)
     return 0;
-  
+
   return S_ISREG(statbuf.st_mode);
 }
 
@@ -135,12 +135,12 @@ is_directory (char *path)
   struct stat statbuf;
   if (stat (path, &statbuf) == -1)
     return 0;
-  
+
   return S_ISDIR(statbuf.st_mode);
 }
 
 
-static int 
+static int
 mkdir_all (char *path)
 {
   char *p;
@@ -155,29 +155,29 @@ mkdir_all (char *path)
     {
       /* skip initial slashes */
       while (*p == '/')
-	p++;
+        p++;
 
       while (*p && *p != '/')
-	p++;
+        p++;
 
       revert = 0;
       if (*p == '/')
-	{
-	  *p = 0;
-	  revert = 1;
-	}
+        {
+          *p = 0;
+          revert = 1;
+        }
 
       if ((mkdir (path, 0755) == -1) &&
-	  (errno != EEXIST))
-	{
-	  result = 0;
-	  break;
-	}
-      
+          (errno != EEXIST))
+        {
+          result = 0;
+          break;
+        }
+
       if (revert)
-	*p = '/';
+        *p = '/';
     }
-	  
+
   free (path);
   return result;
 }
@@ -195,7 +195,7 @@ shell_unescape (char *escaped)
   while (*escaped)
     {
       if (*escaped == '\\' && *(escaped + 1) != 0)
-	escaped++;
+        escaped++;
       *d++ = *escaped++;
     }
   *d = 0;
@@ -215,9 +215,9 @@ shell_escape (char *unescaped)
   while (*unescaped)
     {
       if (*unescaped == '$' ||
-	  *unescaped == '`' ||
-	  *unescaped == '\\')
-	*d++ = '\\';
+          *unescaped == '`' ||
+          *unescaped == '\\')
+        *d++ = '\\';
       *d++ = *unescaped++;
     }
   *d = 0;
@@ -232,7 +232,7 @@ filename_from_utf8 (const char *utf8_path)
   char *out, *outp;
   size_t in_left, out_left, outbuf_size;
   int done;
-  
+
   if (filename_converter == (iconv_t)(-1))
     return strdup (utf8_path);
 
@@ -247,17 +247,17 @@ filename_from_utf8 (const char *utf8_path)
       out = malloc (outbuf_size);
       out_left = outbuf_size - 1;
       outp = out;
-  
+
       res = iconv (filename_converter,
-		   (ICONV_CONST char **)&in, &in_left,
-		   &outp, &out_left);
+                   (ICONV_CONST char **)&in, &in_left,
+                   &outp, &out_left);
       if (res == (size_t)(-1) &&  errno == E2BIG)
-	{
-	  free (out);
-	  outbuf_size *= 2;
-	}
+        {
+          free (out);
+          outbuf_size *= 2;
+        }
       else
-	done = 1;
+        done = 1;
     }
   while (!done);
 
@@ -295,7 +295,7 @@ get_home_dir (void)
       endpwent ();
 
       if (pw && pw->pw_dir)
-	home_dir = strdup (pw->pw_dir);
+        home_dir = strdup (pw->pw_dir);
     }
 
   return home_dir;
@@ -315,9 +315,9 @@ get_user_config_file (const char *filename)
       config_home = concat_strings (get_home_dir (), "/.config", NULL);
       free_config_home = 1;
     }
-  
+
   file = concat_strings (config_home, "/", filename, NULL);
-  
+
   if (free_config_home)
     free (config_home);
 
@@ -331,7 +331,7 @@ freev (char **strs)
   if (strs)
     {
       for (i = 0; strs[i] != NULL; i++)
-	free (strs[i]);
+        free (strs[i]);
       free (strs);
     }
 }
@@ -357,15 +357,15 @@ parse_colon_separated_dirs (const char *dirs)
       path = p;
       colon = strchr (path, ':');
       if (colon)
-	{
-	  len = colon - p;
-	  p = colon + 1;
-	}
+        {
+          len = colon - p;
+          p = colon + 1;
+        }
       else
-	{
-	  len = strlen (p);
-	  p = NULL;
-	}
+        {
+          len = strlen (p);
+          p = NULL;
+        }
 
       paths = realloc (paths, sizeof (char *) * (numfiles + 2));
       paths[numfiles++] = strndup (path, len);
@@ -392,13 +392,13 @@ get_config_files (char *filename)
   if (file)
     {
       if (is_regular_file (file))
-	{
-	  paths = realloc (paths, sizeof (char *) * (numfiles + 2));
-	  paths[numfiles++] = file;
-	  paths[numfiles] = NULL;
-	}
+        {
+          paths = realloc (paths, sizeof (char *) * (numfiles + 2));
+          paths[numfiles++] = file;
+          paths[numfiles] = NULL;
+        }
       else
-	free (file);
+        free (file);
     }
 
   config_dirs = getenv ("XDG_CONFIG_DIRS");
@@ -411,16 +411,16 @@ get_config_files (char *filename)
     {
       file = concat_strings (config_paths[i], "/", filename, NULL);
       if (is_regular_file (file))
-	{
-	  paths = realloc (paths, sizeof (char *) * (numfiles + 2));
-	  paths[numfiles++] = file;
-	  paths[numfiles] = NULL;
-	}
+        {
+          paths = realloc (paths, sizeof (char *) * (numfiles + 2));
+          paths[numfiles++] = file;
+          paths[numfiles] = NULL;
+        }
       else
-	free (file);
+        free (file);
       free (config_paths[i]);
     }
-  
+
   free (config_paths);
 
   return paths;
@@ -431,7 +431,7 @@ add_directory (Directory *dirs, Directory *dir)
 {
   Directory *new_dirs;
   int i;
-  
+
   if (dirs == NULL)
     {
       new_dirs = malloc (sizeof (Directory) * 2);
@@ -441,7 +441,7 @@ add_directory (Directory *dirs, Directory *dir)
   else
     {
       for (i = 0; dirs[i].name != NULL; i++)
-	;
+        ;
       new_dirs = realloc (dirs, (i + 2) * sizeof (Directory));
       new_dirs[i] = *dir;
       new_dirs[i+1].name = NULL;
@@ -454,7 +454,7 @@ is_true (const char *str)
 {
   while (is_space (*str))
     str++;
-  
+
   if (*str == '1' ||
       has_prefix (str, "True") ||
       has_prefix (str, "true"))
@@ -479,43 +479,43 @@ load_config (char *path)
       /* Remove newline at end */
       len = strlen (buffer);
       if (len > 0 && buffer[len-1] == '\n')
-	buffer[len-1] = 0;
-      
+        buffer[len-1] = 0;
+
       p = buffer;
       /* Skip whitespace */
       while (is_space (*p))
-	p++;
-      
+        p++;
+
       if (*p == '#')
-	continue;
+        continue;
 
       remove_trailing_whitespace (p);
-      
-      if (has_prefix (p, "enabled="))
-	{
-	  p += strlen ("enabled=");
-	  enabled = is_true (p);
-	}
-      if (has_prefix (p, "filename_encoding="))
-	{
-	  p += strlen ("filename_encoding=");
 
-	  while (is_space (*p))
-	    p++;
-	  
-	  ascii_str_toupper (p);
-	  remove_trailing_whitespace (p);
-	  if (filename_encoding)
-	    free (filename_encoding);
-	  
-	  if (strcmp (p, "UTF8") == 0 ||
-	      strcmp (p, "UTF-8") == 0)
-	    filename_encoding = NULL;
-	  else if (strcmp (p, "LOCALE") == 0)
-	    filename_encoding = strdup (nl_langinfo (CODESET));
-	  else
-	    filename_encoding = strdup (p);
-	}
+      if (has_prefix (p, "enabled="))
+        {
+          p += strlen ("enabled=");
+          enabled = is_true (p);
+        }
+      if (has_prefix (p, "filename_encoding="))
+        {
+          p += strlen ("filename_encoding=");
+
+          while (is_space (*p))
+            p++;
+
+          ascii_str_toupper (p);
+          remove_trailing_whitespace (p);
+          if (filename_encoding)
+            free (filename_encoding);
+
+          if (strcmp (p, "UTF8") == 0 ||
+              strcmp (p, "UTF-8") == 0)
+            filename_encoding = NULL;
+          else if (strcmp (p, "LOCALE") == 0)
+            filename_encoding = strdup (nl_langinfo (CODESET));
+          else
+            filename_encoding = strdup (p);
+        }
     }
 
   fclose (file);
@@ -526,7 +526,7 @@ load_all_configs (void)
 {
   char **paths;
   int i;
-  
+
   paths = get_config_files ("user-dirs.conf");
 
   /* Load config files in reverse */
@@ -535,7 +535,7 @@ load_all_configs (void)
 
   while (--i >= 0)
     load_config (paths[i]);
-  
+
   freev (paths);
 }
 
@@ -549,14 +549,14 @@ load_default_dirs (void)
   int len;
   Directory dir;
   char **paths;
-  
+
   paths = get_config_files ("user-dirs.defaults");
   if (paths[0] == NULL)
     {
       fprintf (stderr, "No default user directories\n");
       exit (1);
     }
-  
+
   file = fopen (paths[0], "r");
   if (file == NULL)
     {
@@ -569,36 +569,36 @@ load_default_dirs (void)
       /* Remove newline at end */
       len = strlen (buffer);
       if (len > 0 && buffer[len-1] == '\n')
-	buffer[len-1] = 0;
-      
+        buffer[len-1] = 0;
+
       p = buffer;
       /* Skip whitespace */
       while (is_space (*p))
-	p++;
-      
+        p++;
+
       if (*p == '#')
-	continue;
+        continue;
 
       key = p;
       while (*p && !is_space (*p) && * p != '=')
-	p++;
+        p++;
 
       key_end = p;
 
       while (is_space (*p))
-	p++;
+        p++;
       if (*p == '=')
-	p++;
+        p++;
       while (is_space (*p))
-	p++;
-      
+        p++;
+
       value = p;
 
       *key_end = 0;
 
       if (*key == 0 || *value == 0)
-	continue;
-      
+        continue;
+
       dir.name = strdup (key);
       dir.path = strdup (value);
       default_dirs = add_directory (default_dirs, &dir);
@@ -620,10 +620,10 @@ load_user_dirs (void)
   char *user_config_file;
 
   user_config_file = get_user_config_file ("user-dirs.dirs");
-  
+
   file = fopen (user_config_file, "r");
   free (user_config_file);
-  
+
   if (file == NULL)
     return;
 
@@ -632,71 +632,71 @@ load_user_dirs (void)
       /* Remove newline at end */
       len = strlen (buffer);
       if (len > 0 && buffer[len-1] == '\n')
-	buffer[len-1] = 0;
-      
+        buffer[len-1] = 0;
+
       p = buffer;
       /* Skip whitespace */
       while (is_space (*p))
-	p++;
+        p++;
 
       /* Skip comment lines */
       if (*p == '#')
-	continue;
+        continue;
 
       if (!has_prefix(p, "XDG_"))
-	continue;
+        continue;
       p += 4;
       key = p;
-         
+
       while (*p && !is_space (*p) && * p != '=')
-	p++;
+        p++;
 
       if (*p == 0)
-	continue;
+        continue;
 
       key_end = p - 4;
       if (key_end <= key ||
-	  !has_prefix (key_end, "_DIR"))
-	continue;
+          !has_prefix (key_end, "_DIR"))
+        continue;
 
       if (*p == '=')
-	p++;
+        p++;
 
       while (is_space (*p))
-	p++;
+        p++;
 
       if (*p++ != '"')
-	continue;
-	
+        continue;
+
 
       if (has_prefix (p, "$HOME"))
-	{
-	  p += 5;
-	  if (*p == '/')
-	    p++;
-	  else if (*p != '"' && *p != 0)
-	    continue; /* Not ending after $HOME, nor followed by slash. Ignore */
-	}
+        {
+          p += 5;
+          if (*p == '/')
+            p++;
+          else if (*p != '"' && *p != 0)
+            continue; /* Not ending after $HOME, nor followed by slash. Ignore */
+        }
       else if (*p != '/')
-	continue;
+        continue;
       value = p;
 
       while (*p)
-	{
-	  if (*p == '"')
-	    break;
-	  if (*p == '\\' && *(p+1) != 0)
-	    p++;
+        {
+          if (*p == '"')
+            break;
+          if (*p == '\\' && *(p+1) != 0)
+            p++;
 
-	  p++;
-	}
+          p++;
+        }
       value_end = p;
 
       *key_end = 0;
       *value_end = 0;
 
       if (*key == 0)
-	continue;
+        continue;
 
       dir.name = strdup (key);
       dir.path = shell_unescape (value);
@@ -716,7 +716,7 @@ save_locale (void)
   user_locale_file = get_user_config_file ("user-dirs.locale");
   file = fopen (user_locale_file, "w");
   free (user_locale_file);
-  
+
   if (file == NULL)
     {
       fprintf (stderr, "Can't save user-dirs.locale\n");
@@ -758,23 +758,23 @@ save_user_dirs (void)
   slash = strrchr (dir, '/');
   if (slash)
     *slash = 0;
-  
+
   if (stat (dir, &stat_buf) == -1 && errno == ENOENT)
     {
       if (mkdir (dir, 0700) == -1)
-	{
-	  free (dir);
-	  fprintf (stderr, "Can't save user-dirs.dirs, failed to create directory\n");
-	  res = 0;
-	  goto out;
-	}
+        {
+          free (dir);
+          fprintf (stderr, "Can't save user-dirs.dirs, failed to create directory\n");
+          res = 0;
+          goto out;
+        }
     }
   free (dir);
-  
+
   tmp_file = malloc (strlen (user_config_file) + 6 + 1);
   strcpy (tmp_file, user_config_file);
   strcat (tmp_file, "XXXXXX");
-  
+
   tmp_fd = mkstemp (tmp_file);
   if (tmp_fd == -1)
     {
@@ -782,7 +782,7 @@ save_user_dirs (void)
       res = 0;
       goto out;
     }
-  
+
   file = fdopen (tmp_fd, "w");
   if (file == NULL)
     {
@@ -803,14 +803,14 @@ save_user_dirs (void)
   if (user_dirs)
     {
       for (i = 0; user_dirs[i].name != NULL; i++)
-	{
-	  escaped = shell_escape (user_dirs[i].path);
-	  fprintf (file, "XDG_%s_DIR=\"%s%s\"\n",
-		   user_dirs[i].name,
-		   (*escaped == '/')?"":"$HOME/",
-		   escaped);
-	  free (escaped);
-	}
+        {
+          escaped = shell_escape (user_dirs[i].path);
+          fprintf (file, "XDG_%s_DIR=\"%s%s\"\n",
+                   user_dirs[i].name,
+                   (*escaped == '/')?"":"$HOME/",
+                   escaped);
+          free (escaped);
+        }
     }
 
   fclose (file);
@@ -845,14 +845,14 @@ localize_path_name (const char *path)
     {
       has_slash = 0;
       while (*path == '/')
-	{
-	  path++;
-	  has_slash = 1;
-	}
+        {
+          path++;
+          has_slash = 1;
+        }
 
       element = path;
       while (*path && *path != '/')
-	path++;
+        path++;
       element_end = path;
 
       element_copy = strdup_end (element, element_end);
@@ -860,12 +860,12 @@ localize_path_name (const char *path)
 
       res = realloc (res, strlen (res) + 1 + strlen (translated) + 1);
       if (has_slash)
-	strcat (res, "/");
+        strcat (res, "/");
       strcat (res, translated);
-      
+
       free (element_copy);
     }
-  
+
   return res;
 }
 
@@ -876,7 +876,7 @@ lookup_backwards_compat (Directory *dir)
   for (i = 0; backwards_compat_dirs[i].name != NULL; i++)
     {
       if (strcmp (dir->name, backwards_compat_dirs[i].name) == 0)
-	return &backwards_compat_dirs[i];
+        return &backwards_compat_dirs[i];
     }
   return NULL;
 }
@@ -888,11 +888,11 @@ find_dir (Directory *dirs, const char *name)
 
   if (dirs == NULL)
     return NULL;
-  
+
   for (i = 0; dirs[i].name != NULL; i++)
     {
       if (strcmp (dirs[i].name, name) == 0)
-	return &dirs[i];
+        return &dirs[i];
     }
   return NULL;
 }
@@ -907,7 +907,7 @@ create_dirs (int force)
 
   if (default_dirs == NULL)
     return;
-  
+
   for (i = 0; default_dirs[i].name != NULL; i++)
     {
       default_dir = &default_dirs[i];
@@ -915,84 +915,84 @@ create_dirs (int force)
       user_dir = find_dir (user_dirs, default_dir->name);
 
       if (user_dir && !force)
-	{
-	  if (user_dir->path[0] == '/')
-	    path_name = strdup (user_dir->path);
-	  else
-	    path_name = concat_strings (get_home_dir (), "/", user_dir->path, NULL);
-	  if (!is_directory (path_name))
-	    {
-	      fprintf (stderr, "%s was removed, reassigning %s to homedir\n",
-		       path_name, user_dir->name);
-	      free (user_dir->path);
-	      user_dir->path = strdup ("");
-	      user_dirs_changed = 1;
-	    }
-	  free (path_name);
-	  continue;
-	}
+        {
+          if (user_dir->path[0] == '/')
+            path_name = strdup (user_dir->path);
+          else
+            path_name = concat_strings (get_home_dir (), "/", user_dir->path, NULL);
+          if (!is_directory (path_name))
+            {
+              fprintf (stderr, "%s was removed, reassigning %s to homedir\n",
+                       path_name, user_dir->name);
+              free (user_dir->path);
+              user_dir->path = strdup ("");
+              user_dirs_changed = 1;
+            }
+          free (path_name);
+          continue;
+        }
 
       path_name = NULL;
       relative_path_name = NULL;
       if (user_dir == NULL && !force)
-	{
-	  /* New default dir. Check if its an old named dir. We want to
-	     reuse that if it exists. */
-	  compat_dir = lookup_backwards_compat (default_dir);
-	  if (compat_dir)
-	    {
-	      path_name = concat_strings (get_home_dir (), "/", compat_dir->path, NULL);
-	      if (!is_directory (path_name))
-		{
-		  free (path_name);
-		  path_name = NULL;
-		}
-	      else
-		relative_path_name = strdup (compat_dir->path);
-	    }
-	}
+        {
+          /* New default dir. Check if its an old named dir. We want to
+             reuse that if it exists. */
+          compat_dir = lookup_backwards_compat (default_dir);
+          if (compat_dir)
+            {
+              path_name = concat_strings (get_home_dir (), "/", compat_dir->path, NULL);
+              if (!is_directory (path_name))
+                {
+                  free (path_name);
+                  path_name = NULL;
+                }
+              else
+                relative_path_name = strdup (compat_dir->path);
+            }
+        }
 
       if (path_name == NULL)
-	{
-	  translated_name = localize_path_name (default_dir->path);
-	  relative_path_name = filename_from_utf8 (translated_name);
-	  if (relative_path_name == NULL)
-	    relative_path_name = strdup (translated_name);
-	  free (translated_name);
-	  if (relative_path_name[0] == '/')
-	    path_name = strdup (relative_path_name); /* default path was absolute, not homedir relative */
-	  else
-	    path_name = concat_strings (get_home_dir (), "/", relative_path_name, NULL);
-	}
-	      
+        {
+          translated_name = localize_path_name (default_dir->path);
+          relative_path_name = filename_from_utf8 (translated_name);
+          if (relative_path_name == NULL)
+            relative_path_name = strdup (translated_name);
+          free (translated_name);
+          if (relative_path_name[0] == '/')
+            path_name = strdup (relative_path_name); /* default path was absolute, not homedir relative */
+          else
+            path_name = concat_strings (get_home_dir (), "/", relative_path_name, NULL);
+        }
+
       if (user_dir == NULL || strcmp (relative_path_name, user_dir->path) != 0)
-	{
-	  /* Don't make the directories if we're writing a dummy output file */
-	  if (dummy_file == NULL &&
-	      !mkdir_all (path_name))
-	    {
-	      fprintf (stderr, "Can't create dir %s\n", path_name);
-	    }
-	  else
-	    {
-	      user_dirs_changed = 1;
-	      if (user_dir == NULL)
-		{
-		  dir.name = strdup (default_dir->name);
-		  dir.path = strdup (relative_path_name);
-		  user_dirs = add_directory (user_dirs, &dir);
-		}
-	      else
-		{
-		  /* We forced an update */
-		  fprintf (stdout, "Moving %s directory from %s to %s\n",
-			   default_dir->name, user_dir->path, relative_path_name);
-		  free (user_dir->path);
-		  user_dir->path = strdup (relative_path_name);
-		}
-	    }
-	}
-      
+        {
+          /* Don't make the directories if we're writing a dummy output file */
+          if (dummy_file == NULL &&
+              !mkdir_all (path_name))
+            {
+              fprintf (stderr, "Can't create dir %s\n", path_name);
+            }
+          else
+            {
+              user_dirs_changed = 1;
+              if (user_dir == NULL)
+                {
+                  dir.name = strdup (default_dir->name);
+                  dir.path = strdup (relative_path_name);
+                  user_dirs = add_directory (user_dirs, &dir);
+                }
+              else
+                {
+                  /* We forced an update */
+                  fprintf (stdout, "Moving %s directory from %s to %s\n",
+                           default_dir->name, user_dir->path, relative_path_name);
+                  free (user_dir->path);
+                  user_dir->path = strdup (relative_path_name);
+                }
+            }
+        }
+
       free (relative_path_name);
       free (path_name);
     }
@@ -1007,9 +1007,9 @@ main (int argc, char *argv[])
   char *set_dir = NULL;
   char *set_value = NULL;
   char *locale_dir = NULL;
-  
+
   setlocale (LC_ALL, "");
-  
+
   if (is_directory (LOCALEDIR))
     locale_dir = strdup (LOCALEDIR);
   else
@@ -1020,25 +1020,25 @@ main (int argc, char *argv[])
        * of the locale files */
       char *data_dirs = getenv ("XDG_DATA_DIRS");
       if (data_dirs)
-	{
-	  char **data_paths;
+        {
+          char **data_paths;
 
-	  data_paths = parse_colon_separated_dirs (data_dirs);
-	  for (i = 0; data_paths[i] != NULL; i++)
-	    {
-	      if (!locale_dir)
-		{
-		  char *dir = NULL;
-		  dir = concat_strings (data_paths[i], "/", "locale", NULL);
-		  if (is_directory (dir))
-		    locale_dir = dir;
-		  else
-		    free (dir);
-		}
-	      free (data_paths[i]);
-	    }
-	  free (data_paths);
-	}
+          data_paths = parse_colon_separated_dirs (data_dirs);
+          for (i = 0; data_paths[i] != NULL; i++)
+            {
+              if (!locale_dir)
+                {
+                  char *dir = NULL;
+                  dir = concat_strings (data_paths[i], "/", "locale", NULL);
+                  if (is_directory (dir))
+                    locale_dir = dir;
+                  else
+                    free (dir);
+                }
+              free (data_paths[i]);
+            }
+          free (data_paths);
+        }
     }
 
   bindtextdomain (GETTEXT_PACKAGE, locale_dir);
@@ -1051,41 +1051,41 @@ main (int argc, char *argv[])
   for (i = 1; i < argc; i++)
     {
       if (strcmp (argv[i], "--help") == 0)
-	{
-	  printf ("Usage: xdg-user-dirs-update [--force] [--dummy-output <path>] [--set DIR path]\n");
-	  exit (0);
-	}
+        {
+          printf ("Usage: xdg-user-dirs-update [--force] [--dummy-output <path>] [--set DIR path]\n");
+          exit (0);
+        }
       else if (strcmp (argv[i], "--force") == 0)
-	force = 1;
+        force = 1;
       else if (strcmp (argv[i], "--dummy-output") == 0 && i + 1 < argc)
-	dummy_file = argv[++i];
+        dummy_file = argv[++i];
       else if (strcmp (argv[i], "--set") == 0 && i + 2 < argc)
-	{
-	  set_dir = argv[++i];
-	  set_value = argv[++i];
+        {
+          set_dir = argv[++i];
+          set_value = argv[++i];
 
-	  if (*set_value != '/')
-	    {
-	      printf ("directory value must be absolute path (was %s)\n", set_value);
-	      exit (1);
-	    }
-	}
+          if (*set_value != '/')
+            {
+              printf ("directory value must be absolute path (was %s)\n", set_value);
+              exit (1);
+            }
+        }
       else
-	{
-	  printf ("Invalid argument %s\n", argv[i]);
-	  exit (1);
-	}
+        {
+          printf ("Invalid argument %s\n", argv[i]);
+          exit (1);
+        }
     }
-  
+
   load_all_configs ();
   if (filename_encoding)
     {
       filename_converter = iconv_open (filename_encoding, "UTF-8");
       if (filename_converter == (iconv_t)(-1))
-	{
-	  fprintf (stderr, "Can't convert from UTF-8 to %s\n", filename_encoding);
-	  return 1;
-	}
+        {
+          fprintf (stderr, "Can't convert from UTF-8 to %s\n", filename_encoding);
+          return 1;
+        }
     }
 
   if (set_dir != NULL)
@@ -1100,52 +1100,52 @@ main (int argc, char *argv[])
 
       path = set_value;
       if (has_prefix (path, home))
-	{
-	  path += strlen (home);
-	  while (*path == '/')
-	    path++;
-	}
-      
+        {
+          path += strlen (home);
+          while (*path == '/')
+            path++;
+        }
+
       dir = find_dir (user_dirs, set_dir);
       if (dir != NULL)
-	{
-	  free (dir->path);
-	  dir->path = strdup (path);
-	}
+        {
+          free (dir->path);
+          dir->path = strdup (path);
+        }
       else
-	{
-	  Directory new_dir;
+        {
+          Directory new_dir;
 
-	  new_dir.name = strdup (set_dir);
-	  new_dir.path = strdup (path);
-	  
-	  user_dirs = add_directory (user_dirs, &new_dir);
-	}
+          new_dir.name = strdup (set_dir);
+          new_dir.path = strdup (path);
+
+          user_dirs = add_directory (user_dirs, &new_dir);
+        }
       if (!save_user_dirs ())
-	return 1;
+        return 1;
     }
   else
     {
-      
+
       /* default: update */
       if (!enabled)
-	return 0;
-      
+        return 0;
+
       load_default_dirs ();
       load_user_dirs ();
-      
+
       was_empty = (user_dirs == NULL) || (user_dirs->name == NULL);
-      
+
       create_dirs (force);
-      
+
       if (user_dirs_changed)
-	{
-	  if (!save_user_dirs ())
-	    return 1;
-	  
-	  if ((force || was_empty) && dummy_file == NULL)
-	    save_locale ();
-	}
+        {
+          if (!save_user_dirs ())
+            return 1;
+
+          if ((force || was_empty) && dummy_file == NULL)
+            save_locale ();
+        }
 
     }
   return 0;
