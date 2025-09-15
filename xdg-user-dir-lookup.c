@@ -10,10 +10,10 @@
   including without limitation the rights to use, copy, modify, merge,
   publish, distribute, sublicense, and/or sell copies of the Software,
   and to permit persons to whom the Software is furnished to do so,
-  subject to the following conditions: 
+  subject to the following conditions:
 
   The above copyright notice and this permission notice shall be
-  included in all copies or substantial portions of the Software. 
+  included in all copies or substantial portions of the Software.
 
   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
@@ -55,7 +55,7 @@ xdg_user_dir_lookup_with_fallback (const char *type, const char *fallback)
   char *p, *d;
   int len;
   int relative;
-  
+
   home_dir = getenv ("HOME");
 
   if (home_dir == NULL)
@@ -92,71 +92,71 @@ xdg_user_dir_lookup_with_fallback (const char *type, const char *fallback)
       /* Remove newline at end */
       len = strlen (buffer);
       if (len > 0 && buffer[len-1] == '\n')
-	buffer[len-1] = 0;
-      
+        buffer[len-1] = 0;
+
       p = buffer;
       while (*p == ' ' || *p == '\t')
-	p++;
-      
+        p++;
+
       if (strncmp (p, "XDG_", 4) != 0)
-	continue;
+        continue;
       p += 4;
       if (strncmp (p, type, strlen (type)) != 0)
-	continue;
+        continue;
       p += strlen (type);
       if (strncmp (p, "_DIR", 4) != 0)
-	continue;
+        continue;
       p += 4;
 
       while (*p == ' ' || *p == '\t')
-	p++;
+        p++;
 
       if (*p != '=')
-	continue;
+        continue;
       p++;
-      
+
       while (*p == ' ' || *p == '\t')
-	p++;
+        p++;
 
       if (*p != '"')
-	continue;
+        continue;
       p++;
-      
+
       relative = 0;
       if (strncmp (p, "$HOME/", 6) == 0)
-	{
-	  p += 6;
-	  relative = 1;
-	}
+        {
+          p += 6;
+          relative = 1;
+        }
       else if (*p != '/')
-	continue;
+        continue;
 
       free (user_dir);
       if (relative)
-	{
-	  user_dir = (char*) malloc (strlen (home_dir) + 1 + strlen (p) + 1);
+        {
+          user_dir = (char*) malloc (strlen (home_dir) + 1 + strlen (p) + 1);
           if (user_dir == NULL)
             goto error2;
 
-	  strcpy (user_dir, home_dir);
-	  strcat (user_dir, "/");
-	}
+          strcpy (user_dir, home_dir);
+          strcat (user_dir, "/");
+        }
       else
-	{
-	  user_dir = (char*) malloc (strlen (p) + 1);
+        {
+          user_dir = (char*) malloc (strlen (p) + 1);
           if (user_dir == NULL)
             goto error2;
 
-	  *user_dir = 0;
-	}
-      
+          *user_dir = 0;
+        }
+
       d = user_dir + strlen (user_dir);
       while (*p && *p != '"')
-	{
-	  if ((*p == '\\') && (*(p+1) != 0))
-	    p++;
-	  *d++ = *p++;
-	}
+        {
+          if ((*p == '\\') && (*(p+1) != 0))
+            p++;
+          *d++ = *p++;
+        }
       *d = 0;
     }
 error2:
@@ -192,16 +192,16 @@ static char *
 xdg_user_dir_lookup (const char *type)
 {
   char *dir, *home_dir, *user_dir;
-	  
+
   dir = xdg_user_dir_lookup_with_fallback (type, NULL);
   if (dir != NULL)
     return dir;
-  
+
   home_dir = getenv ("HOME");
-  
+
   if (home_dir == NULL)
     return strdup ("/tmp");
-  
+
   /* Special case desktop for historical compatibility */
   if (strcmp (type, "DESKTOP") == 0)
     {
@@ -213,7 +213,7 @@ xdg_user_dir_lookup (const char *type)
       strcat (user_dir, "/Desktop");
       return user_dir;
     }
-  
+
   return strdup (home_dir);
 }
 
@@ -226,7 +226,7 @@ main (int argc, char *argv[])
       fprintf (stderr, "Usage %s <dir-type>\n", argv[0]);
       exit (1);
     }
-  
+
   printf ("%s\n", xdg_user_dir_lookup (argv[1]));
   return 0;
 }
