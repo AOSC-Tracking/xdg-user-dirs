@@ -2,6 +2,7 @@ AC_INIT(xdg-user-dirs-update.c)
 
 AM_INIT_AUTOMAKE(xdg-user-dirs, 0.20)
 AM_CONFIG_HEADER(config.h)
+AC_CONFIG_MACRO_DIRS([m4])
 
 AM_SANITY_CHECK
 AM_MAINTAINER_MODE
