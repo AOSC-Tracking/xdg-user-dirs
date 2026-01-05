@@ -2,6 +2,7 @@ AC_INIT(xdg-user-dirs-update.c)
 
 AM_INIT_AUTOMAKE(xdg-user-dirs, 0.20)
 AM_CONFIG_HEADER(config.h)
+AC_CONFIG_MACRO_DIRS([m4])
 
 AM_SANITY_CHECK
 AM_MAINTAINER_MODE
@@ -14,7 +15,12 @@ AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
 AM_PROG_MKDIR_P
+AC_PROG_SED
 AM_ICONV
+
+AC_SUBST([in_script], [[\
+'$(SED) -e "s,[@]bindir[@],$(bindir),g"'
+                       ]])
 
 GETTEXT_PACKAGE=xdg-user-dirs
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [The gettext domain name])

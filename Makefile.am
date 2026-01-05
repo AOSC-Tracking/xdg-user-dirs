@@ -14,7 +14,7 @@ INCLUDES =					\
 	$(NULL)
 
 EXTRA_DIST= config.rpath translate.c autogen.sh \
-	user-dirs.conf user-dirs.defaults xdg-user-dir xdg-user-dirs.desktop xdg-user-dirs.service
+	user-dirs.conf user-dirs.defaults xdg-user-dir xdg-user-dirs.desktop xdg-user-dirs.service.in
 
 xdgdir=$(sysconfdir)/xdg
 xdg_DATA=user-dirs.conf user-dirs.defaults
@@ -23,6 +23,8 @@ xdgautostartdir=$(xdgdir)/autostart
 xdgautostart_DATA = xdg-user-dirs.desktop
 
 systemduserunit_DATA = xdg-user-dirs.service
+
+$(systemduserunit_DATA): %: %.in; @$(in_script) $< >$@
 
 libraries = $(LIBINTL)
 
@@ -43,6 +45,8 @@ noinst_PROGRAMS= \
 
 xdg_user_dir_lookup_SOURCES = \
 	xdg-user-dir-lookup.c
+
+CLEANFILES = $(systemduserunit_DATA)
 
 dist-hook: check-translations
 	@if test -d "$(srcdir)/.git"; \
